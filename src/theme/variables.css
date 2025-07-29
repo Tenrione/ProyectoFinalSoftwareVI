@@ -1,0 +1,26 @@
+/* For information on how to create your own theme, please see:
+http://ionicframework.com/docs/theming/ */
+.bodyStyle, .toolbarStyle {
+  --ion-background-color: rgba(238, 238, 238, 0.941);
+  --ion-text-color: black;
+  --background:rgba(238, 238, 238, 0.941);
+  --box-shadow:none;
+}
+.botonPersonalizado{
+    display: block;
+    font-weight: bold;
+    --ion-text-color:white;
+    --color: white;
+    --background: darkblue;
+}
+
+.cartaLoginReg, .tituloCarta{
+  --box-shadow: black 10rem;
+  border-radius: 10px;
+  --color:black;
+  --ion-text-color: black;
+  --background:rgba(238, 238, 238, 0.941);
+}
+ion-header {
+  padding-top: env(safe-area-inset-top);
+}
