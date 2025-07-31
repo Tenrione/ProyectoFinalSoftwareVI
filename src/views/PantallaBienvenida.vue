@@ -6,7 +6,7 @@
             <div class="contCenter">
             <div class="logo">
                 <!-- Aqui tengo que poner el logo lol -->
-                <H1>PM</H1>
+                <img src="../theme/icons/global-network.png" alt="">
             </div>
             <h2 class="titulo"><strong>PyManagEr</strong></h2>
             <em class="subtitulo">Gestion de inventario profesional</em>
@@ -93,7 +93,7 @@ ion-row.align-items-center {
   border-radius: 50%;
   height: 4rem;
   width: 4rem;
-  background-color: rgb(178, 241, 126);
+  background-color: rgb(9, 21, 78);
   margin: 0 auto 1rem auto; /* centrado horizontal + separación */
   text-align: center;
 }

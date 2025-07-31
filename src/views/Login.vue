@@ -46,13 +46,16 @@ import { Preferences } from '@capacitor/preferences';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonButtons, IonCard, IonCardContent, IonCardTitle, IonCardSubtitle, IonCardHeader, IonLabel, IonInputPasswordToggle, alertController, IonIcon} from '@ionic/vue';
 import { arrowBackOutline } from 'ionicons/icons';
 import { ref } from 'vue';
+import { usuarioLogin } from '@/services/usuarios';
+import { setAuthToken } from '@/services/api';
 
 const passInput=ref('');
 const userInput=ref('');
-async function crearSesion(){
+
+async function crearSesion(token: any){
     await Preferences.set({
-        key: 'loginCreado',
-        value: 'true'
+        key: 'token',
+        value: token
     });
 }
 function retrocederPantalla(){
@@ -61,16 +64,31 @@ function retrocederPantalla(){
 async function iniciarSesion(){
   const usuario=userInput.value.trim();
   const password=passInput.value.trim();
-  console.log(usuario, password)
   if(!usuario || !password){
-    console.log(usuario, password)
-    await presentAlert('Error de Registro', 'Por favor, rellene todos los campos antes de registrarse.');
+    await presentAlert('Error de Inicio de Sesion', 'Por favor, rellene todos los campos antes de registrarse.');
     return
-    //Aqui tambien se haria la validacion si el usuario existe con un if else probablemente
   }
+  const usuarioLoginIn = {
+    "username": usuario,
+    "password": password
 
-    crearSesion()
-    router.replace("/tabs/Dashboard")
+  }
+  try{
+    const response = await usuarioLogin(usuarioLoginIn)
+    if(response.token!=''){
+        await crearSesion(response.token)
+        console.log(response)
+        setAuthToken(response.token)
+        router.replace("/tabs/Dashboard")
+    }
+    else{
+      await presentAlert('Usuario fallo en el inicio de sesion', 'Tus credenciales son incorrectas')
+      return
+    }
+  }
+  catch(error){
+    await presentAlert('Usuario fallo en el inicio de sesion', 'Tus credenciales son incorrectas')
+  }
 }
 async function presentAlert(header: string, message: string) {
   const alert = await alertController.create({

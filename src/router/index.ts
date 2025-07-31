@@ -42,16 +42,16 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/usuarioUI/PantallaBienvenida',
-    component: () => import('../views/PantallaBienvenida.vue')
+    component: () => import('@/views/PantallaBienvenida.vue')
       
   },
   {
   path:'/usuarioUI/Login',
-  component: () => import('../views/Login.vue')
+  component: () => import('@/views/Login.vue')
 },
 {
   path:'/usuarioUI/Registro',
-  component: () => import('../views/Registro.vue')
+  component: () => import('@/views/Registro.vue')
 },
 ]
 
@@ -61,27 +61,17 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  // Get the authentication status from Preferences
-  const { value } = await Preferences.get({ key: 'loginCreado' });
-  const isAuthenticated = value === 'true'; // Convert 'true' string to boolean true
+  const { value: token } = await Preferences.get({ key: 'token' });
+  const isAuthenticated = !!token; // true si hay token guardado
 
-  // Check if the route requires authentication (e.g., your Dashboard)
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
-  // Scenario 1: User is trying to access a protected route but is not authenticated
   if (requiresAuth && !isAuthenticated) {
-    console.log("Navigation Guard: Route requires authentication, but user is not logged in. Redirecting to Welcome.");
-    next('/usuarioUI/PantallaBienvenida'); // Redirect to your welcome/login page
-  }
-  // Scenario 2: User is authenticated and trying to access the Welcome/Login page
-  else if (!requiresAuth && isAuthenticated && to.path === '/usuarioUI/PantallaBienvenida') {
-    console.log("Navigation Guard: User is logged in and trying to access Welcome. Redirecting to Dashboard.");
-    next('/tabs/Dashboard'); // Redirect to the dashboard
-  }
-  // Scenario 3: All good, proceed with navigation
-  else {
-    console.log(`Navigation Guard: Allowing navigation to ${to.path}.`);
-    next(); // Allow the navigation to proceed
+    next('/usuarioUI/PantallaBienvenida');
+  } else if (!requiresAuth && isAuthenticated && to.path === '/usuarioUI/PantallaBienvenida') {
+    next('/tabs/Dashboard');
+  } else {
+    next();
   }
 });
 export default router

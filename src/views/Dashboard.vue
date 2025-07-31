@@ -15,7 +15,6 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="bodyStyle">
-      <div class="centrarAbsoluto">
         <div class="cardsInline">
       <ion-card class="tituloCarta Productos">
         <ion-card-header>
@@ -25,7 +24,7 @@
         </ion-card-header>
         <ion-card-content>
           <!-- Reemplazar con un get de los items en inventario -->
-          <h2><strong>127</strong></h2>
+          <h2><strong>{{itemsActuales}}</strong></h2>
           <p>Productos totales</p>
         </ion-card-content>
       </ion-card>
@@ -56,7 +55,42 @@
           <p>Stock bajo</p>
         </ion-card-content>
       </ion-card>
-      </div>
+         <ion-card class="tituloCarta">
+        <ion-card-header>
+          <ion-card-title color="light">
+            <strong>Actividad Reciente</strong>
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <!-- Hacer un for each, hasta 4 cosas recientes que cree un row y col -->
+            <ion-row>
+              <ion-col size="8">
+                <div class="infoCol">Se crea el usuario x</div>
+              </ion-col>
+              <ion-col sixe="6">
+                Hace 2 horas
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="8">
+                <div class="infoCol">Se crea el usuario x</div>
+              </ion-col>
+              <ion-col sixe="6">
+                Hace 2 horas
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="8">
+                <div class="infoCol">Se crea el usuario x</div>
+              </ion-col>
+              <ion-col sixe="6">
+                Hace 2 horas
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
     </ion-content>
   </ion-page>
 </template>
@@ -67,22 +101,27 @@ import { Preferences } from '@capacitor/preferences';
 
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCardSubtitle, IonIcon, IonButtons, IonGrid, IonCol, IonRow } from '@ionic/vue';
 import { cubeOutline, peopleOutline, warningOutline } from 'ionicons/icons';
+import { listarProductos } from '@/services/productos';
+import { onMounted, ref } from 'vue';
+const itemsActuales=ref(0);
+async function contadorProductos(){
+  const response = await listarProductos()
+  console.log(response.length)
+  itemsActuales.value=response.length
+
+}
 async function cerrarSesion(){
-  await Preferences.remove({ key: 'loginCreado' })
+  await Preferences.remove({ key: 'token' })
   router.push("/usuarioUI/PantallaBienvenida")
 }
 function revisarInventario(){
   router.push("/tabs/Inventario")
 }
+onMounted(() => {
+  contadorProductos();
+});
 </script>
 <style>
-.centrarAbsoluto{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
 .cardsInline{
   display: flex; 
   flex-wrap: wrap; 
@@ -90,14 +129,11 @@ function revisarInventario(){
   width: 100%;
 }
 .tituloCarta.Productos, .tituloCarta.Usuarios{
-  width: 45%;
-}
-.tituloCarta.Stock{
-  width: 95%;
+  width: 44%;
 }
 .headerFlex{
   display: flex;
-  align-items: start;
+  align-items: center;
   justify-content: space-between;
   font-weight: bold;
 }

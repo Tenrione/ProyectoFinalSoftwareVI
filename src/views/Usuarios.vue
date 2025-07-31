@@ -64,10 +64,57 @@
             </div>
           </div>
           <p>Creado en: 29/07/2025</p>
+          
         </ion-card-content>
       </ion-card>
+      <ion-modal color="light" ref="modalUser" trigger="open-modalUser" @willDismiss="onWillDismiss">
+            <ion-header>
+              <ion-toolbar class="toolbarStyle">
+                <ion-buttons slot="start">
+                  <ion-button @click="cancel()">Cancelar</ion-button>
+                </ion-buttons>
+                <ion-title>Agregar Usuario</ion-title>
+                <ion-buttons slot="end">
+                  <ion-button :strong="true" @click="confirm()">Guardar</ion-button>
+                </ion-buttons>
+              </ion-toolbar>
+            </ion-header>
+            <ion-content class="ion-padding bodyStyle" color="dark">
+
+              <h4><strong>Nombre Completo</strong></h4>
+                <ion-input label="Nombre Completo"label-placement="floating" :clear-input="true" fill="outline" type="text" ref="nombreUsuario" :maxlength="30" placeholder="Ej. Miguel Zamora"
+                ></ion-input>
+
+                <h4><strong>Usuario</strong></h4>
+                <ion-input label="Usuario"label-placement="floating" :clear-input="true" fill="outline" type="text" ref="Usuario" :maxlength="30" placeholder="JZamora"
+                ></ion-input>
+
+                <h4><strong>Inserte el correo</strong></h4>
+                <ion-input label="Email"label-placement="floating" :clear-input="true" fill="outline" type="email" ref="email" placeholder="tuempresa@gmail.com"
+                ></ion-input>
+                
+                <h4>
+                    <strong>Inserte su Cedula</strong>
+                </h4>
+                <ion-input label="Cédula(con guiones)" label-placement="floating" :clear-input="true" fill="outline" type="text" id="cedulaInput">
+                  </ion-input>
+
+                <h4><strong>Contraseña</strong></h4>
+                <ion-input label="Contraseña"label-placement="floating" :clear-input="true" fill="outline" type="password" ref="nombreUsuario" :maxlength="20"
+                ></ion-input>
+                <h4><strong>Rol:</strong></h4>
+                <ion-segment v-model="rolSeleccionado" value="trabajador" class="segmentStyle">
+                  <ion-segment-button value="trabajador">
+                    <ion-label>Empleado</ion-label>
+                  </ion-segment-button>
+                  <ion-segment-button value="administrador">
+                    <ion-label>Administrador</ion-label>
+                  </ion-segment-button>
+                </ion-segment>
+            </ion-content>
+          </ion-modal>
           <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-            <ion-fab-button>
+            <ion-fab-button id="open-modalUser">
               <ion-icon :icon="add"></ion-icon>
             </ion-fab-button>
           </ion-fab>
@@ -76,11 +123,44 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonFab, IonFabButton, IonSearchbar, IonButton, IonIcon, IonCard,IonCardContent,IonCardHeader,IonCardTitle, IonCardSubtitle } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonFab, IonFabButton, IonSearchbar, IonButton, IonIcon, IonCard,IonCardContent,IonSegment, IonSegmentButton,IonLabel, IonModal, IonButtons, IonInput} from '@ionic/vue';
 import { add, personOutline, shieldOutline, trashOutline } from 'ionicons/icons';
-
+import {ref}from 'vue'
+import { OverlayEventDetail } from '@ionic/core/components';
+  const rolSeleccionado = ref('trabajador');
+  const modalUser = ref();
+  const name = ref();
+  const cancel = () => modalUser.value.$el.dismiss(null, 'cancel');
+  const confirm = () => {
+  modalUser.value.$el.dismiss(name, 'confirm');
+}
+  const onWillDismiss = (event: CustomEvent<OverlayEventDetail>) => {
+    if (event.detail.role === 'confirm') {
+    }
+  }
 </script>
-<style>
+
+
+
+
+<style scoped>
+.segmentStyle {
+  /* Keep this for the overall segment background */
+  --indicator-color: transparent;
+  /* Set indicator-color to transparent to hide the default indicator */
+  --text-color: black;
+  --border-radius: 8px;
+  padding: 4px;
+}
+
+ion-segment-button {
+  --background: #f0f0f0;
+  --color: #000;
+  --border-radius: 8px;
+  font-weight: 500;
+  margin-right: 6px;
+}
+
 .headerFlex{
   display: flex;
   justify-content: space-between;

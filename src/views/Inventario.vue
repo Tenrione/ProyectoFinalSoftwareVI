@@ -12,13 +12,13 @@
       <ion-searchbar show-clear-button="focus"  color="dark" class="barraBusqueda">
 
       </ion-searchbar >
-      <ion-card class="tituloCarta" color="dark">
+      <ion-card v-for="producto in listaProductos" :key="producto.id" class="tituloCarta">
         <ion-card-header>
           <ion-card-title>
             <div class="headerFlex">
               <!-- Aqui el nombre del producto -->
                <!-- Deberia ser un for each que genere estas por cada producto -->
-              <strong>Laptop HP Pavilion</strong>
+              <strong>{{producto.nombre}}</strong>
               <ion-button color="success" class="rounded">
                 <ion-icon :icon="pencil"></ion-icon>
               </ion-button>
@@ -31,17 +31,17 @@
           </ion-card-title>
           <ion-card-subtitle>
             <!-- Aqui la categoria del producto -->
-            Electronicos
+            {{producto.categoria}}
           </ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
           <!-- Aqui irian los detalles del producto -->
-          <p>Laptop con 8GB de RAM, 256GB SSD</p>
+          <p>{{producto.descripcion}}</p>
           <!-- Aqui los precios -->
           <div class="mostrarInline">
-            <p>precio: <strong>799.99</strong></p>
+            <p>Precio: <strong>{{ producto.precio }}</strong></p>
             <!-- Aqui el stock -->
-            <p>Stock: 15 unidades</p>
+            <p>Stock: {{producto.stock}}</p>
           </div>
         </ion-card-content>
         
@@ -93,12 +93,9 @@ import router from '@/router';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonFab, IonFabButton, IonSearchbar, IonButton, IonIcon, IonCard,IonCardContent,IonCardHeader,IonCardTitle, IonCardSubtitle, IonButtons, IonModal, IonLabel, IonInput, alertController} from '@ionic/vue';
 import { add, pencil, trashOutline } from 'ionicons/icons';
 import { OverlayEventDetail } from '@ionic/core/components';
-import { ref } from 'vue'
-
-function AddProductos(){
-  router.push("/inventario/editarAddProductos")
-}
-
+import { onMounted, ref } from 'vue'
+import { listarProductos } from '@/services/productos';
+let listaProductos: any[] = [];
   const modal = ref();
   const producto = ref();
   const descripcion = ref();
@@ -128,7 +125,11 @@ function AddProductos(){
   };
   modal.value.$el.dismiss(prod, 'confirm');
 }
-
+async function cargarProductos(){
+  listaProductos=[]
+  const response = await listarProductos();
+  listaProductos = [...response]; 
+}
 async function presentAlert(header: string, message: string) {
   const alert = await alertController.create({
     header: header,
@@ -141,6 +142,9 @@ async function presentAlert(header: string, message: string) {
     if (event.detail.role === 'confirm') {
     }
   }
+  onMounted(() => {
+    cargarProductos()
+});
 </script>
 
 

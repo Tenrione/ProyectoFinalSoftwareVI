@@ -84,7 +84,7 @@
                 <ion-input-password-toggle slot="end"></ion-input-password-toggle>
             </ion-input>
 
-          <ion-button expand="block" class="botonPersonalizado ion-margin-top" @click="registrarUsuario()">
+          <ion-button expand="block" class="botonPersonalizado ion-margin-top" @click="registroUsuario()">
             Registrarse
           </ion-button>
         </ion-card-content>
@@ -98,6 +98,7 @@ import { Preferences } from '@capacitor/preferences';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonButtons, IonCard, IonCardContent, IonCardTitle, IonCardSubtitle, IonCardHeader, IonLabel, IonInputPasswordToggle, alertController, IonIcon} from '@ionic/vue';
 import { arrowBackOutline } from 'ionicons/icons';
 import { ref } from 'vue';
+import { registrarUsuario } from '@/services/usuarios';
 //Variables creadas para despues validar que no den espacios vacios
 const nombreInput = ref('');
 const apellidoInput = ref('');
@@ -110,7 +111,7 @@ const passInputConfirm = ref('');
 function retrocederPantalla(){
     router.replace("/usuarioUI/PantallaBienvenida")
 }
-async function registrarUsuario() {
+async function registroUsuario() {
 //Se obtienen los valores de los inputs
   const nombre = nombreInput.value.trim();
   const apellido = apellidoInput.value.trim();
@@ -128,6 +129,7 @@ async function registrarUsuario() {
   }
   if (password.length <8){
     await presentAlert('Error en la contraseña', 'Inserte una contraseña de minimo 8 caracteres')
+    return
   }
   const RUC_REGEX = /^(\d{10}-\d{1}|\d{7}-\d{1}-\d{6})$/;
   if (!RUC_REGEX.test(ruc)){
@@ -137,7 +139,7 @@ async function registrarUsuario() {
   const cedulaRegex=/^\d-\d{3,4}-\d{3,4}$/;
   if(!cedulaRegex.test(cedula)){
     await presentAlert('Error de Cedula', 'Por favor, introduzca una cedula valida.');
-    return;
+    return;
   }
 
   if (password !== confirmPassword) {
@@ -151,8 +153,32 @@ async function registrarUsuario() {
     await presentAlert('Error de Correo', 'Por favor, introduzca un correo electrónico válido.');
     return;
   }
-  console.log('Todos los campos llenos y válidos. Procediendo con el registro...');
-  router.replace("/usuarioUI/Login");
+  //Tipo usuario quemado dado que si lo crea es por que es admin
+  const UsuarioRegistro = {
+    "nombre": nombre+" "+ apellido,
+    "email": correo,
+    "password_hash": password,
+    
+    "rol": "admin",
+    "usuario": usuario,
+    "cedula": cedula
+  }
+  try{
+    const rucInsert = ruc
+    const response = await registrarUsuario(rucInsert, UsuarioRegistro)
+    console.log(response)
+    if(response && response.mensaje === "Usuario creado correctamente"){
+      await presentAlert('Usuario creado exitosamente', '¡Ya puede iniciar sesion!')
+      router.replace("/usuarioUI/Login");
+    }
+    else{
+      await presentAlert('Usuario fallo en el registro', 'Tus credenciales son incorrectas')
+    }
+  }
+  catch(error){
+    await presentAlert('Usuario fallo en el registro', 'Tus credenciales son incorrectas')
+  }
+  
 }
 async function presentAlert(header: string, message: string) {
   const alert = await alertController.create({
