@@ -45,51 +45,70 @@ import router from '@/router';
 import { Preferences } from '@capacitor/preferences';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonButtons, IonCard, IonCardContent, IonCardTitle, IonCardSubtitle, IonCardHeader, IonLabel, IonInputPasswordToggle, alertController, IonIcon} from '@ionic/vue';
 import { arrowBackOutline } from 'ionicons/icons';
-import { ref } from 'vue';
+import { ref ,onMounted} from 'vue';
 import { usuarioLogin } from '@/services/usuarios';
 import { setAuthToken } from '@/services/api';
 
 const passInput=ref('');
 const userInput=ref('');
 
-async function crearSesion(token: any){
-    await Preferences.set({
-        key: 'token',
-        value: token
-    });
+async function crearSesion(token: any, nombre: string, rol: string, id: string, ruc: string) {
+    console.log('Guardando datos en Preferences:');
+    console.log('Token:', token);
+    console.log('Nombre:', nombre);
+    console.log('Rol:', rol);
+    console.log('ID:', id);
+    console.log('RUC:', ruc); // Log para verificar
+    
+    await Preferences.set({ key: 'token', value: token });
+    await Preferences.set({ key: 'nombre', value: nombre });
+    await Preferences.set({ key: 'rol', value: rol });
+    await Preferences.set({ key: 'id', value: id }); // Guardar ID también
+    
+    // 2. Guarda el RUC si existe
+    if (ruc) {
+        await Preferences.set({ key: 'ruc', value: ruc });
+    }
 }
+
 function retrocederPantalla(){
     router.replace("/usuarioUI/PantallaBienvenida")
 }
+
 async function iniciarSesion(){
-  const usuario=userInput.value.trim();
-  const password=passInput.value.trim();
+  const usuario = userInput.value.trim();
+  const password = passInput.value.trim();
+  
   if(!usuario || !password){
     await presentAlert('Error de Inicio de Sesion', 'Por favor, rellene todos los campos antes de registrarse.');
-    return
+    return;
   }
+  
   const usuarioLoginIn = {
     "username": usuario,
     "password": password
-
-  }
-  try{
-    const response = await usuarioLogin(usuarioLoginIn)
-    if(response.token!=''){
-        await crearSesion(response.token)
-        console.log(response)
-        setAuthToken(response.token)
-        router.replace("/tabs/Dashboard")
+  };
+   
+  
+ try {
+    const response = await usuarioLogin(usuarioLoginIn);
+    console.log('Respuesta completa del login:', response);
+    
+    if(response.token) {
+      // 3. Pasa el RUC (response.ruc) a la función crearSesion
+      await crearSesion(response.token, response.nombre, response.rol, response.id, response.ruc);
+      setAuthToken(response.token);
+      router.replace("/tabs/Dashboard");
+    } else {
+      await presentAlert('Usuario fallo en el inicio de sesion', 'Tus credenciales son incorrectas');
+      return;
     }
-    else{
-      await presentAlert('Usuario fallo en el inicio de sesion', 'Tus credenciales son incorrectas')
-      return
-    }
-  }
-  catch(error){
-    await presentAlert('Usuario fallo en el inicio de sesion', 'Tus credenciales son incorrectas')
+  } catch(error) {
+    console.error('Error en login:', error);
+    await presentAlert('Usuario fallo en el inicio de sesion', 'Tus credenciales son incorrectas');
   }
 }
+
 async function presentAlert(header: string, message: string) {
   const alert = await alertController.create({
     header: header,
@@ -98,6 +117,7 @@ async function presentAlert(header: string, message: string) {
   });
   await alert.present();
 }
+
 //Hacer las funciones para que se envie la info en la base de datos con un get
 //si se recibe respuesta sera login y se guardara el token en vez de un true
 </script>
